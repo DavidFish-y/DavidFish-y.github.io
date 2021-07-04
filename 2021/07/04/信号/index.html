@@ -16,7 +16,7 @@
 <meta property="og:description" content="信号的概念信号在我们的生活中随处可见， 如：古代战争中摔杯为号；现代战争中的信号弹；体育比赛中使用的信号枪……他们都有共性： 1. 简单 2. 不能携带大量信息 3. 满足某个特设条件才发送。信号是信息的载体， Linux&#x2F;UNIX 环境下，古老、经典的通信方式， 现下依然是主要的通信手段。Unix 早期版本就提供了信号机制，但不可靠，信号可能丢失。 Berkeley 和 AT&amp;T 都对信">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-04T07:23:30.000Z">
-<meta property="article:modified_time" content="2021-07-04T12:02:51.561Z">
+<meta property="article:modified_time" content="2021-07-04T13:01:54.218Z">
 <meta property="article:author" content="David Fish">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="Linux">
@@ -327,70 +327,38 @@
 </ul>
 <p>注意从 man 7 signal 帮助文档中可看到 : The signals SIGKILL and SIGSTOP cannot be caught, blocked, or ignored.<br>这里特别强调了 9) SIGKILL 和 19) SIGSTOP 信号，不允许忽略和捕捉，只能执行默认动作。甚至不能将其设置为阻塞。<br>另外需清楚， 只有每个信号所对应的事件发生了，该信号才会被递送(但不一定递达)，不应乱发信号！！  </p>
 <h2 id="常规信号一览表"><a href="#常规信号一览表" class="headerlink" title="常规信号一览表"></a>常规信号一览表</h2><ol>
-<li><p>SIGHUP: 当用户退出 shell 时，由该 shell 启动的所有进程将收到这个信号，默认动作为终止进程</p>
-</li>
-<li><p>SIGINT：当用户按下了&lt;Ctrl+C&gt;组合键时，用户终端向正在运行中的由该终端启动的程序发出此信号。默认动作为终止进程。</p>
-</li>
-<li><p>SIGQUIT：当用户按下&lt;ctrl+&gt;组合键时产生该信号，用户终端向正在运行中的由该终端启动的程序发出些信<br>号。默认动作为终止进程。</p>
-</li>
-<li><p>SIGILL： CPU 检测到某进程执行了非法指令。默认动作为终止进程并产生 core 文件</p>
-</li>
-<li><p>SIGTRAP：该信号由断点指令或其他 trap 指令产生。默认动作为终止里程 并产生 core 文件。</p>
-</li>
-<li><p>SIGABRT: 调用 abort 函数时产生该信号。默认动作为终止进程并产生 core 文件。</p>
-</li>
-<li><p>SIGBUS：非法访问内存地址，包括内存对齐出错，默认动作为终止进程并产生 core 文件。</p>
-</li>
-<li><p>SIGFPE：在发生致命的运算错误时发出。不仅包括浮点运算错误，还包括溢出及除数为 0 等所有的算法错误。默认动作为终止进程并产生 core 文件。</p>
-</li>
-<li><p>SIGKILL：无条件终止进程。本信号不能被忽略，处理和阻塞。默认动作为终止进程。它向系统管理员提供了<br>可以杀死任何进程的方法。</p>
-</li>
-<li><p>SIGUSE1：用户定义 的信号。即程序员可以在程序中定义并使用该信号。默认动作为终止进程。</p>
-</li>
-<li><p>SIGSEGV：指示进程进行了无效内存访问。默认动作为终止进程并产生 core 文件。</p>
-</li>
-<li><p>SIGUSR2：另外一个用户自定义信号，程序员可以在程序中定义并使用该信号。默认动作为终止进程。</p>
-</li>
-<li><p>SIGPIPE： Broken pipe 向一个没有读端的管道写数据。默认动作为终止进程。  </p>
-</li>
-<li><p>SIGALRM: 定时器超时，超时的时间 由系统调用 alarm 设置。默认动作为终止进程。</p>
-</li>
-<li><p>SIGTERM：程序结束信号，与 SIGKILL 不同的是，该信号可以被阻塞和终止。通常用来要示程序正常退出。<br>执行 shell 命令 Kill 时，缺省产生这个信号。默认动作为终止进程。</p>
-</li>
-<li><p>SIGSTKFLT： Linux 早期版本出现的信号，现仍保留向后兼容。默认动作为终止进程。</p>
-</li>
-<li><p>SIGCHLD：子进程状态发生变化时，父进程会收到这个信号。默认动作为忽略这个信号。</p>
-</li>
-<li><p>SIGCONT：如果进程已停止，则使其继续运行。默认动作为继续/忽略。</p>
-</li>
-<li><p>SIGSTOP：停止进程的执行。信号不能被忽略，处理和阻塞。默认动作为暂停进程。</p>
-</li>
-<li><p>SIGTSTP：停止终端交互进程的运行。按下&lt;ctrl+z&gt;组合键时发出这个信号。默认动作为暂停进程。</p>
-</li>
-<li><p>SIGTTIN：后台进程读终端控制台。默认动作为暂停进程。</p>
-</li>
-<li><p>SIGTTOU: 该信号类似于 SIGTTIN，在后台进程要向终端输出数据时发生。默认动作为暂停进程。</p>
-</li>
-<li><p>SIGURG：套接字上有紧急数据时，向当前正在运行的进程发出些信号，报告有紧急数据到达。如网络带外<br>数据到达，默认动作为忽略该信号。</p>
-</li>
-<li><p>SIGXCPU：进程执行时间超过了分配给该进程的 CPU 时间 ，系统产生该信号并发送给该进程。默认动作为<br>终止进程。</p>
-</li>
-<li><p>SIGXFSZ：超过文件的最大长度设置。默认动作为终止进程。</p>
-</li>
-<li><p>SIGVTALRM：虚拟时钟超时时产生该信号。类似于 SIGALRM，但是该信号只计算该进程占用 CPU 的使用时间。默认动作为终止进程。</p>
-</li>
-<li><p>SGIPROF：类似于 SIGVTALRM，它不公包括该进程占用 CPU 时间还包括执行系统调用时间。默认动作为终止进程。</p>
-</li>
-<li><p>SIGWINCH：窗口变化大小时发出。默认动作为忽略该信号。</p>
-</li>
-<li><p>SIGIO：此信号向进程指示发出了一个异步 IO 事件。默认动作为忽略。</p>
-</li>
-<li><p>SIGPWR：关机。默认动作为终止进程。</p>
-</li>
-<li><p>SIGSYS：无效的系统调用。默认动作为终止进程并产生 core 文件。</p>
-</li>
-<li><p>SIGRTMIN ～ (64) SIGRTMAX： LINUX 的实时信号，它们没有固定的含义（可以由用户自定义）。所有的实时信号的默认动作都为终止进程。  </p>
-</li>
+<li>SIGHUP: 当用户退出 shell 时，由该 shell 启动的所有进程将收到这个信号，默认动作为终止进程</li>
+<li>SIGINT：当用户按下了&lt;Ctrl+C&gt;组合键时，用户终端向正在运行中的由该终端启动的程序发出此信号。默认动作为终止进程。</li>
+<li>SIGQUIT：当用户按下&lt;ctrl+&gt;组合键时产生该信号，用户终端向正在运行中的由该终端启动的程序发出些信<br>号。默认动作为终止进程。</li>
+<li>SIGILL： CPU 检测到某进程执行了非法指令。默认动作为终止进程并产生 core 文件</li>
+<li>SIGTRAP：该信号由断点指令或其他 trap 指令产生。默认动作为终止里程 并产生 core 文件。</li>
+<li>SIGABRT: 调用 abort 函数时产生该信号。默认动作为终止进程并产生 core 文件。</li>
+<li>SIGBUS：非法访问内存地址，包括内存对齐出错，默认动作为终止进程并产生 core 文件。</li>
+<li>SIGFPE：在发生致命的运算错误时发出。不仅包括浮点运算错误，还包括溢出及除数为 0 等所有的算法错误。默认动作为终止进程并产生 core 文件。</li>
+<li>SIGKILL：无条件终止进程。本信号不能被忽略，处理和阻塞。默认动作为终止进程。它向系统管理员提供了可以杀死任何进程的方法。</li>
+<li>SIGUSE1：用户定义 的信号。即程序员可以在程序中定义并使用该信号。默认动作为终止进程。</li>
+<li>SIGSEGV：指示进程进行了无效内存访问。默认动作为终止进程并产生 core 文件。</li>
+<li>SIGUSR2：另外一个用户自定义信号，程序员可以在程序中定义并使用该信号。默认动作为终止进程。</li>
+<li>SIGPIPE： Broken pipe 向一个没有读端的管道写数据。默认动作为终止进程。  </li>
+<li>SIGALRM: 定时器超时，超时的时间 由系统调用 alarm 设置。默认动作为终止进程。</li>
+<li>SIGTERM：程序结束信号，与 SIGKILL 不同的是，该信号可以被阻塞和终止。通常用来要示程序正常退出。执行 shell 命令 Kill 时，缺省产生这个信号。默认动作为终止进程。</li>
+<li>SIGSTKFLT： Linux 早期版本出现的信号，现仍保留向后兼容。默认动作为终止进程。</li>
+<li>SIGCHLD：子进程状态发生变化时，父进程会收到这个信号。默认动作为忽略这个信号。</li>
+<li>SIGCONT：如果进程已停止，则使其继续运行。默认动作为继续/忽略。</li>
+<li>SIGSTOP：停止进程的执行。信号不能被忽略，处理和阻塞。默认动作为暂停进程。</li>
+<li>SIGTSTP：停止终端交互进程的运行。按下&lt;ctrl+z&gt;组合键时发出这个信号。默认动作为暂停进</li>
+<li>SIGTTIN：后台进程读终端控制台。默认动作为暂停进程。</li>
+<li>SIGTTOU: 该信号类似于 SIGTTIN，在后台进程要向终端输出数据时发生。默认动作为暂停进程</li>
+<li>SIGURG：套接字上有紧急数据时，向当前正在运行的进程发出些信号，报告有紧急数据到达。如网络带外<br>数据到达，默认动作为忽略该信号。</li>
+<li>SIGXCPU：进程执行时间超过了分配给该进程的 CPU 时间 ，系统产生该信号并发送给该进程。默认动作为<br>终止进程。</li>
+<li>SIGXFSZ：超过文件的最大长度设置。默认动作为终止进程。</li>
+<li>SIGVTALRM：虚拟时钟超时时产生该信号。类似于 SIGALRM，但是该信号只计算该进程占用 CPU 的使用时间。默认动作为终止进程。</li>
+<li>SGIPROF：类似于 SIGVTALRM，它不公包括该进程占用 CPU 时间还包括执行系统调用时间。默认动作为终止进程。</li>
+<li>SIGWINCH：窗口变化大小时发出。默认动作为忽略该信号。</li>
+<li>SIGIO：此信号向进程指示发出了一个异步 IO 事件。默认动作为忽略。</li>
+<li>SIGPWR：关机。默认动作为终止进程。</li>
+<li>SIGSYS：无效的系统调用。默认动作为终止进程并产生 core 文件。</li>
+<li>SIGRTMIN ～ (64) SIGRTMAX： LINUX 的实时信号，它们没有固定的含义（可以由用户自定义）。所有的实时信号的默认动作都为终止进程。  </li>
 </ol>
 
       
@@ -499,6 +467,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2021/07/04/%E4%BF%A1%E5%8F%B72/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          信号（二）
+        
+      </div>
+    </a>
   
   
     <a href="/2021/07/03/dup%E5%92%8Cdup2/" id="article-nav-older" class="article-nav-link-wrap">
